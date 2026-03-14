@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Readmission Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Healthcare Readmission Prediction</h1>
+        <p class="subtitle">Enter patient information to predict readmission risk</p>
+        
+        <form action="/predict" method="POST">
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" min="0" max="120" required placeholder="e.g., 65">
+                <span class="hint">Patient age in years</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="time_in_hospital">Time in Hospital (days)</label>
+                <input type="number" id="time_in_hospital" name="time_in_hospital" min="1" max="30" required placeholder="e.g., 4">
+                <span class="hint">Number of days spent in hospital</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="num_lab_procedures">Number of Lab Procedures</label>
+                <input type="number" id="num_lab_procedures" name="num_lab_procedures" min="0" max="100" required placeholder="e.g., 40">
+                <span class="hint">Total lab procedures performed</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="num_medications">Number of Medications</label>
+                <input type="number" id="num_medications" name="num_medications" min="0" max="50" required placeholder="e.g., 10">
+                <span class="hint">Number of distinct medications prescribed</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="number_outpatient">Outpatient Visits</label>
+                <input type="number" id="number_outpatient" name="number_outpatient" min="0" max="50" required placeholder="e.g., 0">
+                <span class="hint">Number of outpatient visits in past year</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="number_emergency">Emergency Visits</label>
+                <input type="number" id="number_emergency" name="number_emergency" min="0" max="50" required placeholder="e.g., 1">
+                <span class="hint">Number of emergency visits in past year</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="number_inpatient">Inpatient Visits</label>
+                <input type="number" id="number_inpatient" name="number_inpatient" min="0" max="50" required placeholder="e.g., 0">
+                <span class="hint">Number of inpatient visits in past year</span>
+            </div>
+            
+            <button type="submit">Predict Readmission Risk</button>
+        </form>
+        
+        <div class="api-link">
+            <a href="#" onclick="alert('POST to /api/predict with JSON data'); return false;">API Documentation</a>
+        </div>
+    </div>
+</body>
+</html>

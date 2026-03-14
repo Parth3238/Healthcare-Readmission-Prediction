@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Prediction Result</h1>
+        
+        <div class="result-box {{ 'readmitted' if result.prediction == 1 else 'not-readmitted' }}">
+            <div class="result-title">{{ result.prediction_text }}</div>
+            <div class="result-text">
+                {% if result.prediction == 1 %}
+                    This patient is at risk of readmission
+                {% else %}
+                    This patient is not at risk of readmission
+                {% endif %}
+            </div>
+            {% if result.confidence %}
+            <div class="confidence">Confidence: {{ result.confidence }}%</div>
+            {% endif %}
+        </div>
+        
+        <div class="patient-data">
+            <h3>Patient Information</h3>
+            <div class="data-row">
+                <span class="data-label">Age:</span>
+                <span class="data-value">{{ form_data.age[0] }} years</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Time in Hospital:</span>
+                <span class="data-value">{{ form_data.time_in_hospital[0] }} days</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Lab Procedures:</span>
+                <span class="data-value">{{ form_data.num_lab_procedures[0] }}</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Medications:</span>
+                <span class="data-value">{{ form_data.num_medications[0] }}</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Outpatient Visits:</span>
+                <span class="data-value">{{ form_data.number_outpatient[0] }}</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Emergency Visits:</span>
+                <span class="data-value">{{ form_data.number_emergency[0] }}</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Inpatient Visits:</span>
+                <span class="data-value">{{ form_data.number_inpatient[0] }}</span>
+            </div>
+        </div>
+        
+        <a href="/" class="btn">Make Another Prediction</a>
+    </div>
+</body>
+</html>

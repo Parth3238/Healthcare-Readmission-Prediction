@@ -1,0 +1,22 @@
+healthcare-readmission-prediction
+│
+├── data
+│   └── diabetes.csv
+│
+├── notebooks
+│   └── EDA.ipynb
+│
+├── src
+│   ├── preprocess.py
+│   ├── train.py
+│   ├── predict.py
+│
+├── models
+│   └── model.pkl
+│
+├── app
+│   └── app.py
+│
+├── requirements.txt
+├── README.md
+
