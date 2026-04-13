@@ -50,7 +50,7 @@ Hospital readmissions are a significant burden on healthcare systems. This proje
 ### Web Application
 - Interactive UI: Beautiful gradient design with form validation
 - Real-time Predictions: Instant readmission risk assessment
-- Confidence Scores: Probability-based predictions
+- Confidence Scores: Probability-based predictions with visual charts
 - REST API: JSON API for integration with other systems
 - Error Handling: Graceful error management
 
@@ -58,7 +58,7 @@ Hospital readmissions are a significant burden on healthcare systems. This proje
 - Confusion Matrix: Model performance visualization
 - ROC Curve: Trade-off between sensitivity and specificity
 - Feature Importance Plot: Key drivers of readmission
-- Patient Data Dashboard: Comprehensive data display
+- Probability Chart: Interactive Chart.js visualization of readmission risk
 
 ## Architecture
 
@@ -129,7 +129,7 @@ Visit http://127.0.0.1:5000 in your browser.
    - Emergency Visits
    - Inpatient Visits
 3. Click "Predict" to get readmission risk
-4. View results with confidence score
+4. View results with confidence score and probability chart
 
 ### API Usage
 
@@ -153,6 +153,14 @@ print(f"Prediction: {result['prediction_text']}")
 print(f"Confidence: {result['confidence']}")
 ```
 
+### API Example (cURL)
+
+```bash
+curl -X POST http://127.0.0.1:5000/api/predict \
+  -H "Content-Type: application/json" \
+  -d '{"age": 65, "time_in_hospital": 4, "num_lab_procedures": 40, "num_medications": 10, "number_outpatient": 0, "number_emergency": 1, "number_inpatient": 0}'
+```
+
 ## Project Structure
 
 ```
@@ -160,31 +168,52 @@ Healthcare-Readmission-Prediction/
 ├── data/                          # Dataset
 │   └── healthcare_readmission_dataset.csv
 ├── models/                        # Trained models
-│   └── model.pkl
+│   ├── model.pkl                  # Primary trained model
+│   └── best_model.pkl             # Best model from comparison
 ├── src/                           # Source code
-│   ├── data_preprocessing.py      # Data cleaning
-│   ├── train_model.py             # Model training
+│   ├── __init__.py                # Package init
+│   ├── data_preprocessing.py      # Data loading and splitting
+│   ├── train_model.py             # Model training script
 │   ├── predict.py                 # Prediction script
-│   └── evaluate.py                # Model evaluation
+│   ├── evaluate.py                # Model evaluation with metrics
+│   └── model_comparison.py        # Multi-model comparison
 ├── web/                           # Web application
-│   ├── app.py                     # Flask app
+│   ├── app.py                     # Flask application (REST API)
 │   ├── templates/                 # HTML templates
 │   │   ├── index.html            # Input form
-│   │   ├── result.html           # Results page
+│   │   ├── result.html           # Results with Chart.js
 │   │   └── error.html            # Error page
 │   └── static/                    # CSS/JS assets
 │       └── css/
 │           └── style.css
+├── tests/                          # Test suite
+│   ├── test_models.py             # Data and model tests
+│   └── test_prediction.py         # Prediction function tests
 ├── results/                       # Evaluation outputs
 │   ├── confusion_matrix.png
 │   ├── roc_curve.png
-│   └── feature_importance.png
+│   ├── feature_importance.png
+│   └── model_comparison_results.csv
 ├── README.md                      # This file
-├── requirements.txt               # Dependencies
-└── .gitignore                     # Git ignore rules
+├── requirements.txt              # Dependencies
+├── setup.py                      # Package setup
+├── Dockerfile                    # Docker container
+└── docker-compose.yml            # Docker compose
 ```
 
 ## Model Performance
+
+### Training Results
+
+When running `python src/train_model.py`, the following metrics are calculated:
+
+| Metric | Description |
+|--------|-------------|
+| Accuracy | Overall correctness of predictions |
+| Precision | Ratio of true positives to predicted positives |
+| Recall | Ratio of true positives to actual positives |
+| F1-Score | Harmonic mean of precision and recall |
+| ROC-AUC | Area under ROC curve (higher is better) |
 
 ### Classification Report
 
@@ -217,7 +246,7 @@ Healthcare-Readmission-Prediction/
 | /predict | POST | Form-based prediction |
 | /api/predict | POST | JSON API for programmatic access |
 
-### Request/Response Format
+### API Request/Response Format
 
 **Request (POST /api/predict):**
 ```json
@@ -241,39 +270,78 @@ Healthcare-Readmission-Prediction/
 }
 ```
 
+### Error Response Format
+```json
+{
+  "error": "Missing required field: age"
+}
+```
+
+### Input Validation Rules
+
+| Field | Type | Valid Range |
+|-------|------|-------------|
+| age | integer | 0-120 |
+| time_in_hospital | integer | 0-365 |
+| num_lab_procedures | integer | 0-500 |
+| num_medications | integer | 0-200 |
+| number_outpatient | integer | 0-100 |
+| number_emergency | integer | 0-50 |
+| number_inpatient | integer | 0-50 |
+
 ## Technologies Used
 
 ### Core Libraries
 - Python 3.9+: Programming language
-- Flask: Web framework
-- scikit-learn: Machine learning library
-- Pandas: Data manipulation
-- NumPy: Numerical computing
-- Joblib: Model serialization
+- Flask 3.0+: Web framework
+- flask-cors: Cross-origin resource sharing
+- scikit-learn 1.3+: Machine learning library
+- Pandas 2.1+: Data manipulation
+- NumPy 1.26+: Numerical computing
+- Joblib 1.3+: Model serialization
 
 ### Visualization
-- Matplotlib: Plotting library
-- Seaborn: Statistical visualization
+- Matplotlib 3.8+: Plotting library
+- Seaborn 0.13+: Statistical visualization
+- Chart.js 4.4: Interactive web charts
 
 ### Frontend
 - HTML5: Markup language
 - CSS3: Styling
 - Jinja2: Template engine
 
+### Testing
+- pytest: Unit testing framework
+
 ## Future Enhancements
 
-- Docker Containerization for easy deployment
-- Model Versioning with MLflow
-- Automated Retraining pipeline
-- More ML Algorithms (XGBoost, Neural Networks)
-- SHAP Values for explainability
-- Real-time Monitoring dashboard
-- Mobile App for healthcare providers
-- FHIR Integration for EHR systems
+The following improvements are planned for future versions:
+
+### Authentication & Security
+- JWT-based authentication for API endpoints
+- Role-based access control (RBAC) for healthcare staff
+- HTTPS/TLS encryption for data in transit
+
+### Logging & Monitoring
+- Structured logging with Logstash/ELK stack
+- Request/response logging for audit trails
+- Performance monitoring with Grafana
+
+### Scalability
+- Kubernetes deployment for auto-scaling
+- Redis caching for model predictions
+- Load balancing across multiple Flask instances
+- Model serving with TensorFlow Serving or Triton
+
+### Machine Learning
+- XGBoost and LightGBM integration
+- SHAP values for model explainability
+- Automated hyperparameter tuning with Optuna
+- A/B testing framework for model comparison
 
 ## Contributors
 
-- Your Name - ML Engineer & Full Stack Developer
+- Parth Agrawal - ML Engineer & Full Stack Developer
 
 ## License
 

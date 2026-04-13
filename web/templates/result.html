@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prediction Result</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Chart.js for probability visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Prediction Result</h1>
-        
+
         <div class="result-box {{ 'readmitted' if result.prediction == 1 else 'not-readmitted' }}">
             <div class="result-title">{{ result.prediction_text }}</div>
             <div class="result-text">
@@ -23,6 +25,51 @@
             <div class="confidence">Confidence: {{ result.confidence }}%</div>
             {% endif %}
         </div>
+
+        <!-- Probability Chart -->
+        {% if result.confidence %}
+        <div class="chart-container">
+            <h3>Readmission Probability</h3>
+            <canvas id="probabilityChart"></canvas>
+        </div>
+        <script>
+            // Parse confidence value
+            const confidence = {{ result.confidence }};
+            const notReadmittedProb = 100 - confidence;
+
+            // Create horizontal bar chart showing probability
+            new Chart(document.getElementById('probabilityChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Not Readmitted', 'Readmitted'],
+                    datasets: [{
+                        label: 'Probability %',
+                        data: [notReadmittedProb, confidence],
+                        backgroundColor: ['#2ecc71', '#e74c3c'],
+                        borderColor: ['#27ae60', '#c0392b'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Patient Readmission Risk Assessment'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            max: 100,
+                            title: { display: true, text: 'Probability (%)' }
+                        }
+                    }
+                }
+            });
+        </script>
+        {% endif %}
         
         <div class="patient-data">
             <h3>Patient Information</h3>

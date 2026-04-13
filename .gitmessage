@@ -1,0 +1,78 @@
+# Commit Message Style Guide
+
+## Format
+
+Use the following format for commit messages:
+
+```
+<type>: <short description>
+
+<longer description if needed>
+```
+
+## Types
+
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `refactor`: Code refactoring (no functional change)
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks (dependencies, config, etc.)
+
+## Examples
+
+### Good Commit Messages
+
+```
+feat: add model evaluation metrics to training script
+
+- Added accuracy, precision, recall, f1_score, roc_auc metrics
+- Results are printed clearly and saved
+```
+
+```
+fix: validate API input ranges and return proper error messages
+
+- Check that all required fields are present
+- Validate numeric type and range for each feature
+- Return JSON error responses with descriptive messages
+```
+
+```
+docs: update README with API examples and validation rules
+
+- Added cURL example for API request
+- Added input validation rules table
+- Added Future Enhancements section for auth/logging/scalability
+```
+
+```
+refactor: add docstrings and improve code structure
+
+- Added module-level and function docstrings
+- Grouped imports by standard library/third-party/project
+- Added inline comments for complex logic
+```
+
+```
+test: add prediction function tests
+
+- Test model prediction with valid input
+- Test predict_proba method availability
+- Test batch prediction on multiple samples
+```
+
+## Bad Commit Messages (Avoid)
+
+- `fixed stuff`
+- `update`
+- `asdf`
+- `WIP`
+- `changes`
+
+## Tips
+
+1. Keep the first line under 72 characters
+2. Use imperative mood ("add" not "added")
+3. Be specific about what changed and why
+4. Reference issue numbers if applicable (e.g., `fix: resolve null pointer in prediction (#5)`)
