@@ -7,7 +7,7 @@ from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
     confusion_matrix, classification_report, roc_auc_score, roc_curve
 )
-from data_preprocessing import load_data, split_data
+from src.data_preprocessing import load_data, split_data
 
 # Get the project root directory
 BASE_DIR = Path(__file__).parent.parent

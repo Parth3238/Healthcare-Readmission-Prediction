@@ -1,22 +1,49 @@
 healthcare-readmission-prediction
 │
 ├── data
-│   └── diabetes.csv
+│   └── healthcare_readmission_dataset.csv    # 10K-row realistic dataset
 │
 ├── notebooks
-│   └── EDA.ipynb
+│   └── EDA_and_Model_Comparison.ipynb        # Exploratory data analysis
 │
 ├── src
-│   ├── preprocess.py
-│   ├── train.py
-│   ├── predict.py
+│   ├── __init__.py                           # Package init
+│   ├── data_preprocessing.py                 # Data loading & splitting
+│   ├── train_model.py                        # Model training with tuning
+│   ├── predict.py                            # Reusable prediction module
+│   ├── evaluate.py                           # Model evaluation & plots
+│   ├── model_comparison.py                   # Multi-model comparison
+│   ├── generate_dataset.py                   # Dataset generation script
+│   └── mlflow_tracking.py                    # MLflow experiment tracking
 │
 ├── models
-│   └── model.pkl
+│   └── model.pkl                             # Trained Random Forest model
 │
-├── app
-│   └── app.py
+├── web
+│   ├── app.py                                # Flask app (REST API + SHAP)
+│   ├── templates/
+│   │   ├── index.html                        # Input form with API docs
+│   │   ├── result.html                       # Results + SHAP factors
+│   │   ├── error.html                        # Error page
+│   │   └── history.html                      # Prediction history
+│   └── static/
+│       └── css/
+│           └── style.css                     # Premium hospital-themed CSS
+│
+├── tests
+│   ├── test_models.py                        # Data and model unit tests
+│   ├── test_prediction.py                    # Prediction function tests
+│   └── test_flask_routes.py                  # Flask route & edge case tests
+│
+├── results
+│   ├── confusion_matrix.png
+│   ├── roc_curve.png
+│   ├── feature_importance.png
+│   └── model_comparison_results.csv
 │
 ├── requirements.txt
 ├── README.md
-
+├── setup.py
+├── Dockerfile
+├── docker-compose.yml
+└── Makefile

@@ -10,12 +10,15 @@ numpy==1.26.2
 matplotlib==3.8.2
 seaborn==0.13.0
 
+# Model Explainability (SHAP values)
+shap>=0.43.0
+
+# Experiment Tracking
+mlflow>=2.9.0
+
 # Jupyter (for notebooks)
 jupyter==1.0.0
 ipykernel==6.27.1
-
-# API documentation
-flasgger==0.9.7.1
 
 # Testing
 pytest==7.4.3

@@ -3,9 +3,11 @@
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![Flask](https://img.shields.io/badge/Flask-3.0+-green.svg)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)
+![SHAP](https://img.shields.io/badge/SHAP-Explainability-purple.svg)
+![MLflow](https://img.shields.io/badge/MLflow-Tracking-red.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-> An end-to-end Machine Learning solution for predicting patient hospital readmission risk using Random Forest Classifier.
+> An end-to-end Machine Learning solution for predicting patient hospital readmission risk using Random Forest Classifier, with SHAP-based explainability and MLflow experiment tracking.
 
 ## Table of Contents
 
@@ -18,11 +20,13 @@
 - [Model Performance](#model-performance)
 - [API Documentation](#api-documentation)
 - [Technologies Used](#technologies-used)
+- [Testing](#testing)
 - [Future Enhancements](#future-enhancements)
+- [Contributors](#contributors)
 
 ## Overview
 
-Hospital readmissions are a significant burden on healthcare systems. This project leverages machine learning to predict the likelihood of a patient being readmitted within 30 days, enabling healthcare providers to:
+Hospital readmissions are a significant burden on healthcare systems, costing the U.S. healthcare system over $26 billion annually. This project leverages machine learning to predict the likelihood of a patient being readmitted within 30 days, enabling healthcare providers to:
 
 - Identify high-risk patients early
 - Allocate resources efficiently
@@ -31,51 +35,62 @@ Hospital readmissions are a significant burden on healthcare systems. This proje
 
 ### Business Impact
 
-| Metric | Value |
-|--------|-------|
-| Accuracy | ~75-85% |
-| Precision | ~80% |
-| Recall | ~75% |
-| F1-Score | ~77% |
+This system provides actionable risk assessment with explainable predictions, helping clinicians understand *why* a patient is flagged as high-risk through SHAP-based feature importance analysis.
 
 ## Features
 
 ### Machine Learning
-- Data Preprocessing: Automated data cleaning and feature engineering
-- Model Training: Random Forest Classifier with hyperparameter tuning
-- Model Evaluation: Comprehensive metrics (Accuracy, Precision, Recall, F1, ROC-AUC)
-- Feature Importance: Understanding which factors drive readmission risk
-- Cross-Validation: Ensuring model robustness
+- **Data Pipeline**: Automated data loading, preprocessing, and train/test splitting
+- **Model Training**: Random Forest Classifier with hyperparameter tuning (GridSearchCV)
+- **Model Comparison**: 8 algorithm comparison (RF, GBM, Logistic Regression, SVM, KNN, Decision Tree, AdaBoost, Naive Bayes)
+- **Model Evaluation**: Comprehensive metrics (Accuracy, Precision, Recall, F1, ROC-AUC)
+- **Explainability**: SHAP values for model interpretability — top 3 contributing factors per prediction
+- **Experiment Tracking**: MLflow integration for logging metrics, parameters, and model artifacts
 
 ### Web Application
-- Interactive UI: Beautiful gradient design with form validation
-- Real-time Predictions: Instant readmission risk assessment
-- Confidence Scores: Probability-based predictions with visual charts
-- REST API: JSON API for integration with other systems
-- Error Handling: Graceful error management
+- **Premium UI**: Hospital-themed design with Inter font, card layouts, and gradient backgrounds
+- **Real-time Predictions**: Instant readmission risk assessment with confidence scores
+- **SHAP Explanations**: Visual display of top factors contributing to each prediction
+- **Prediction History**: Session-based storage of last 10 predictions
+- **REST API**: JSON API endpoint for programmatic access
+- **API Documentation**: Built-in expandable API docs section
+- **Input Validation**: Range-checked form inputs matching backend constraints
+- **Mobile Responsive**: Fully responsive design for all screen sizes
 
-### Visualization and Analytics
-- Confusion Matrix: Model performance visualization
-- ROC Curve: Trade-off between sensitivity and specificity
-- Feature Importance Plot: Key drivers of readmission
-- Probability Chart: Interactive Chart.js visualization of readmission risk
+### Dataset
+- **10,000 samples** generated with clinically realistic distributions
+- **7 clinical features**: Age, Time in Hospital, Lab Procedures, Medications, Outpatient/Emergency/Inpatient Visits
+- **29.1% readmission rate** — mirrors real-world clinical readmission patterns
+- **Logistic risk model**: Target variable generated from evidence-based clinical risk factors
 
 ## Architecture
 
 ```
-Web Interface (Flask + HTML/CSS)
-         |
-         v
-    API Layer
-         |
-         v
-ML Prediction Engine (Random Forest)
-         |
-         v
-Data Processing (Pandas, NumPy)
-         |
-         v
-   Data Storage
+┌─────────────────────────────────┐
+│   Web Interface (Flask + HTML)  │
+│   Premium UI with SHAP display  │
+└──────────────┬──────────────────┘
+               │
+┌──────────────▼──────────────────┐
+│       API Layer (REST JSON)     │
+│   /predict  |  /api/predict     │
+│   /history                      │
+└──────────────┬──────────────────┘
+               │
+┌──────────────▼──────────────────┐
+│  ML Prediction Engine           │
+│  Random Forest + SHAP Explainer │
+└──────────────┬──────────────────┘
+               │
+┌──────────────▼──────────────────┐
+│  Data Processing (Pandas/NumPy) │
+│  Preprocessing + Validation     │
+└──────────────┬──────────────────┘
+               │
+┌──────────────▼──────────────────┐
+│  MLflow Experiment Tracking     │
+│  Metrics, Parameters, Artifacts │
+└─────────────────────────────────┘
 ```
 
 ## Installation
@@ -102,18 +117,29 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### Step 4: Train the Model
+### Step 4: Generate Dataset (Optional — pre-generated dataset included)
+```bash
+python src/generate_dataset.py
+```
+
+### Step 5: Train the Model
 ```bash
 python src/train_model.py
 ```
 
-### Step 5: Run the Web Application
+### Step 6: Run the Web Application
 ```bash
 cd web
 python app.py
 ```
 
 Visit http://127.0.0.1:5000 in your browser.
+
+### Step 7 (Optional): Run MLflow Experiment Tracking
+```bash
+python src/mlflow_tracking.py
+mlflow ui
+```
 
 ## Usage
 
@@ -128,8 +154,13 @@ Visit http://127.0.0.1:5000 in your browser.
    - Outpatient Visits
    - Emergency Visits
    - Inpatient Visits
-3. Click "Predict" to get readmission risk
-4. View results with confidence score and probability chart
+3. Click **"Predict Readmission Risk"**
+4. View results with:
+   - Color-coded risk badge (red = high risk, green = low risk)
+   - Confidence score
+   - Top 3 SHAP contributing factors
+   - Interactive probability chart
+5. View past predictions on the **History** page
 
 ### API Usage
 
@@ -151,6 +182,7 @@ response = requests.post(url, json=data)
 result = response.json()
 print(f"Prediction: {result['prediction_text']}")
 print(f"Confidence: {result['confidence']}")
+print(f"Top Factors: {result.get('contributing_factors', [])}")
 ```
 
 ### API Example (cURL)
@@ -165,76 +197,85 @@ curl -X POST http://127.0.0.1:5000/api/predict \
 
 ```
 Healthcare-Readmission-Prediction/
-├── data/                          # Dataset
-│   └── healthcare_readmission_dataset.csv
-├── models/                        # Trained models
-│   ├── model.pkl                  # Primary trained model
-│   └── best_model.pkl             # Best model from comparison
-├── src/                           # Source code
-│   ├── __init__.py                # Package init
-│   ├── data_preprocessing.py      # Data loading and splitting
-│   ├── train_model.py             # Model training script
-│   ├── predict.py                 # Prediction script
-│   ├── evaluate.py                # Model evaluation with metrics
-│   └── model_comparison.py        # Multi-model comparison
-├── web/                           # Web application
-│   ├── app.py                     # Flask application (REST API)
-│   ├── templates/                 # HTML templates
-│   │   ├── index.html            # Input form
-│   │   ├── result.html           # Results with Chart.js
-│   │   └── error.html            # Error page
-│   └── static/                    # CSS/JS assets
+├── data/                              # Dataset
+│   └── healthcare_readmission_dataset.csv  (10,000 rows)
+├── models/                            # Trained models
+│   └── model.pkl                      # Primary trained model
+├── src/                               # Source code
+│   ├── __init__.py                    # Package init
+│   ├── data_preprocessing.py          # Data loading and splitting
+│   ├── train_model.py                 # Model training with GridSearchCV
+│   ├── predict.py                     # Reusable prediction module
+│   ├── evaluate.py                    # Model evaluation with metrics & plots
+│   ├── model_comparison.py            # 8-model comparison
+│   ├── generate_dataset.py            # Realistic dataset generator
+│   └── mlflow_tracking.py            # MLflow experiment tracking
+├── web/                               # Web application
+│   ├── app.py                         # Flask app (REST API + SHAP)
+│   ├── templates/                     # HTML templates
+│   │   ├── index.html                 # Input form with API docs
+│   │   ├── result.html                # Results + SHAP factors
+│   │   ├── error.html                 # Error page
+│   │   └── history.html               # Prediction history
+│   └── static/                        # CSS assets
 │       └── css/
-│           └── style.css
-├── tests/                          # Test suite
-│   ├── test_models.py             # Data and model tests
-│   └── test_prediction.py         # Prediction function tests
-├── results/                       # Evaluation outputs
+│           └── style.css              # Premium hospital-themed CSS
+├── tests/                             # Test suite
+│   ├── test_models.py                 # Data and model unit tests
+│   ├── test_prediction.py             # Prediction function tests
+│   └── test_flask_routes.py           # Flask route & edge case tests
+├── results/                           # Evaluation outputs
 │   ├── confusion_matrix.png
 │   ├── roc_curve.png
 │   ├── feature_importance.png
 │   └── model_comparison_results.csv
-├── README.md                      # This file
-├── requirements.txt              # Dependencies
-├── setup.py                      # Package setup
-├── Dockerfile                    # Docker container
-└── docker-compose.yml            # Docker compose
+├── notebooks/
+│   └── EDA_and_Model_Comparison.ipynb # Exploratory data analysis
+├── README.md                          # This file
+├── requirements.txt                   # Dependencies
+├── setup.py                           # Package setup
+├── Dockerfile                         # Docker container
+├── docker-compose.yml                 # Docker compose
+└── Makefile                           # Build automation
 ```
 
 ## Model Performance
 
-### Training Results
+### Honest Assessment
 
-When running `python src/train_model.py`, the following metrics are calculated:
+This project uses a **10,000-sample dataset** with realistic clinical distributions. The readmission prediction task is inherently challenging — even state-of-the-art models in published research typically achieve 65–75% accuracy on this problem due to the complex, multi-factorial nature of hospital readmissions.
 
-| Metric | Description |
-|--------|-------------|
-| Accuracy | Overall correctness of predictions |
-| Precision | Ratio of true positives to predicted positives |
-| Recall | Ratio of true positives to actual positives |
-| F1-Score | Harmonic mean of precision and recall |
-| ROC-AUC | Area under ROC curve (higher is better) |
+### Training Results (Random Forest — 300 trees)
+
+| Metric | Score |
+|--------|-------|
+| **Accuracy** | ~72% |
+| **Precision (weighted)** | ~68% |
+| **Recall (weighted)** | ~72% |
+| **F1-Score (weighted)** | ~66% |
+| **ROC-AUC** | ~0.62 |
 
 ### Classification Report
 
 | Class | Precision | Recall | F1-Score | Support |
 |-------|-----------|--------|----------|---------|
-| Not Readmitted (0) | 0.82 | 0.85 | 0.83 | 60 |
-| Readmitted (1) | 0.78 | 0.75 | 0.76 | 40 |
+| Not Readmitted (0) | 0.74 | 0.93 | 0.82 | ~1417 |
+| Readmitted (1) | 0.53 | 0.19 | 0.28 | ~583 |
 
-### Key Metrics
+### Why These Numbers Are Realistic
 
-- Accuracy: 81%
-- ROC-AUC: 0.84
-- Average Precision: 0.79
+- **Hospital readmission prediction is a well-known hard problem** — published research on the UCI Diabetes 130-US Hospitals dataset reports similar accuracy ranges (60–75%)
+- **Class imbalance**: Only ~29% of patients are readmitted, making the minority class harder to predict
+- **Limited features**: We use 7 demographic/clinical features; real EHR systems have hundreds
+- **This is a prototype**: Production systems would incorporate diagnosis codes (ICD), lab results, medications, social determinants of health, and temporal patterns
 
 ### Feature Importance (Top 5)
 
-1. Time in Hospital - 28%
-2. Number of Lab Procedures - 22%
-3. Age - 18%
-4. Number of Medications - 15%
-5. Number of Inpatient Visits - 12%
+1. **Number of Inpatient Visits** — Prior inpatient stays are the strongest signal
+2. **Number of Emergency Visits** — ER utilization indicates instability
+3. **Time in Hospital** — Longer stays correlate with readmission risk
+4. **Age** — Older patients face higher readmission risk
+5. **Number of Medications** — Polypharmacy is a known risk factor
 
 ## API Documentation
 
@@ -242,9 +283,10 @@ When running `python src/train_model.py`, the following metrics are calculated:
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| / | GET | Web interface home page |
-| /predict | POST | Form-based prediction |
-| /api/predict | POST | JSON API for programmatic access |
+| `/` | GET | Web interface home page |
+| `/predict` | POST | Form-based prediction (returns HTML) |
+| `/api/predict` | POST | JSON API for programmatic access |
+| `/history` | GET | View last 10 predictions |
 
 ### API Request/Response Format
 
@@ -266,7 +308,12 @@ When running `python src/train_model.py`, the following metrics are calculated:
 {
   "prediction": 1,
   "prediction_text": "Readmitted",
-  "confidence": 0.8234
+  "confidence": 0.7234,
+  "contributing_factors": [
+    {"feature": "Emergency Visits", "impact": 0.0821},
+    {"feature": "Patient Age", "impact": 0.0534},
+    {"feature": "Time in Hospital (days)", "impact": 0.0312}
+  ]
 }
 ```
 
@@ -281,37 +328,62 @@ When running `python src/train_model.py`, the following metrics are calculated:
 
 | Field | Type | Valid Range |
 |-------|------|-------------|
-| age | integer | 0-120 |
-| time_in_hospital | integer | 0-365 |
-| num_lab_procedures | integer | 0-500 |
-| num_medications | integer | 0-200 |
-| number_outpatient | integer | 0-100 |
-| number_emergency | integer | 0-50 |
-| number_inpatient | integer | 0-50 |
+| age | integer | 0–120 |
+| time_in_hospital | integer | 0–365 |
+| num_lab_procedures | integer | 0–500 |
+| num_medications | integer | 0–200 |
+| number_outpatient | integer | 0–100 |
+| number_emergency | integer | 0–50 |
+| number_inpatient | integer | 0–50 |
 
 ## Technologies Used
 
 ### Core Libraries
-- Python 3.9+: Programming language
-- Flask 3.0+: Web framework
-- flask-cors: Cross-origin resource sharing
-- scikit-learn 1.3+: Machine learning library
-- Pandas 2.1+: Data manipulation
-- NumPy 1.26+: Numerical computing
-- Joblib 1.3+: Model serialization
+- **Python 3.9+**: Programming language
+- **Flask 3.0+**: Web framework
+- **flask-cors**: Cross-origin resource sharing
+- **scikit-learn 1.3+**: Machine learning library
+- **Pandas 2.1+**: Data manipulation
+- **NumPy 1.26+**: Numerical computing
+- **Joblib 1.3+**: Model serialization
+
+### Model Explainability & Tracking
+- **SHAP 0.43+**: SHapley Additive exPlanations for model interpretability
+- **MLflow 2.9+**: Experiment tracking and model registry
 
 ### Visualization
-- Matplotlib 3.8+: Plotting library
-- Seaborn 0.13+: Statistical visualization
-- Chart.js 4.4: Interactive web charts
+- **Matplotlib 3.8+**: Plotting library
+- **Seaborn 0.13+**: Statistical visualization
+- **Chart.js 4.4**: Interactive web charts
 
 ### Frontend
-- HTML5: Markup language
-- CSS3: Styling
-- Jinja2: Template engine
+- **HTML5**: Semantic markup
+- **CSS3**: Premium hospital-themed design with Inter font
+- **Jinja2**: Template engine
 
 ### Testing
-- pytest: Unit testing framework
+- **pytest**: Unit testing framework
+- **Flask test_client()**: Integration testing for routes
+
+## Testing
+
+Run all tests:
+```bash
+# Unit tests
+pytest tests/ -v
+
+# With coverage
+pytest tests/ --cov=src --cov=web -v
+
+# Run specific test file
+pytest tests/test_flask_routes.py -v
+```
+
+### Test Coverage
+- **Unit Tests**: Data preprocessing, model training, prediction functions
+- **Integration Tests**: Flask routes (`/`, `/predict`, `/api/predict`, `/history`)
+- **Edge Case Tests**: All-zeros input, maximum values, negative values, string values, boundary conditions
+- **Session Tests**: Prediction history storage and retrieval
 
 ## Future Enhancements
 
@@ -335,13 +407,16 @@ The following improvements are planned for future versions:
 
 ### Machine Learning
 - XGBoost and LightGBM integration
-- SHAP values for model explainability
 - Automated hyperparameter tuning with Optuna
 - A/B testing framework for model comparison
+- Real-time model retraining pipeline
 
 ## Contributors
 
-- Parth Agrawal - ML Engineer & Full Stack Developer
+| Name | Role | Contributions |
+|------|------|--------------|
+| **Parth Agrawal** | ML Engineer & Full Stack Developer | Data pipeline, model training, Flask backend, API development, testing |
+| **Yagh Chaudhary** | Frontend Developer & ML Researcher | UI/UX design, CSS theming, SHAP integration, documentation, dataset research |
 
 ## License
 
@@ -349,10 +424,11 @@ This project is licensed under the MIT License.
 
 ## Acknowledgments
 
-- Dataset inspired by UCI Machine Learning Repository
+- Dataset generation inspired by the [UCI Diabetes 130-US Hospitals](https://archive.ics.uci.edu/dataset/296) dataset
+- SHAP library by [Scott Lundberg](https://github.com/slundberg/shap)
 - Flask framework by Pallets Projects
 - scikit-learn community
 
 ---
 
-Star this repository if you found it helpful!
+⭐ Star this repository if you found it helpful!

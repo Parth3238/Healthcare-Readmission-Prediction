@@ -3,63 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healthcare Readmission Prediction</title>
+    <meta name="description" content="Healthcare Readmission Prediction System — AI-powered patient risk assessment using machine learning. Predict hospital readmission risk instantly.">
+    <title>Healthcare Readmission Prediction | AI Risk Assessment</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Healthcare Readmission Prediction</h1>
-        <p class="subtitle">Enter patient information to predict readmission risk</p>
-        
-        <form action="/predict" method="POST">
-            <div class="form-group">
-                <label for="age">Age</label>
-                <input type="number" id="age" name="age" min="0" max="120" required placeholder="e.g., 65">
-                <span class="hint">Patient age in years</span>
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                </svg>
             </div>
-            
-            <div class="form-group">
-                <label for="time_in_hospital">Time in Hospital (days)</label>
-                <input type="number" id="time_in_hospital" name="time_in_hospital" min="1" max="30" required placeholder="e.g., 4">
-                <span class="hint">Number of days spent in hospital</span>
+            <h1>Healthcare Readmission Prediction</h1>
+            <p class="subtitle">AI-powered risk assessment for patient hospital readmission</p>
+        </div>
+
+        <!-- Prediction Form -->
+        <form id="predictionForm" action="/predict" method="POST">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="age">
+                        <span class="label-icon">🎂</span> Age
+                    </label>
+                    <input type="number" id="age" name="age" min="0" max="120" required placeholder="e.g., 65" step="1">
+                    <span class="hint">Patient age in years (0–120)</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="time_in_hospital">
+                        <span class="label-icon">🏥</span> Time in Hospital
+                    </label>
+                    <input type="number" id="time_in_hospital" name="time_in_hospital" min="0" max="365" required placeholder="e.g., 4" step="1">
+                    <span class="hint">Number of days spent in hospital (0–365)</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="num_lab_procedures">
+                        <span class="label-icon">🔬</span> Lab Procedures
+                    </label>
+                    <input type="number" id="num_lab_procedures" name="num_lab_procedures" min="0" max="500" required placeholder="e.g., 40" step="1">
+                    <span class="hint">Total lab procedures performed (0–500)</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="num_medications">
+                        <span class="label-icon">💊</span> Medications
+                    </label>
+                    <input type="number" id="num_medications" name="num_medications" min="0" max="200" required placeholder="e.g., 10" step="1">
+                    <span class="hint">Number of distinct medications (0–200)</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="number_outpatient">
+                        <span class="label-icon">🚶</span> Outpatient Visits
+                    </label>
+                    <input type="number" id="number_outpatient" name="number_outpatient" min="0" max="100" required placeholder="e.g., 0" step="1">
+                    <span class="hint">Outpatient visits in past year (0–100)</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="number_emergency">
+                        <span class="label-icon">🚑</span> Emergency Visits
+                    </label>
+                    <input type="number" id="number_emergency" name="number_emergency" min="0" max="50" required placeholder="e.g., 1" step="1">
+                    <span class="hint">Emergency visits in past year (0–50)</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="number_inpatient">
+                        <span class="label-icon">🛏️</span> Inpatient Visits
+                    </label>
+                    <input type="number" id="number_inpatient" name="number_inpatient" min="0" max="50" required placeholder="e.g., 0" step="1">
+                    <span class="hint">Inpatient visits in past year (0–50)</span>
+                </div>
             </div>
-            
-            <div class="form-group">
-                <label for="num_lab_procedures">Number of Lab Procedures</label>
-                <input type="number" id="num_lab_procedures" name="num_lab_procedures" min="0" max="100" required placeholder="e.g., 40">
-                <span class="hint">Total lab procedures performed</span>
-            </div>
-            
-            <div class="form-group">
-                <label for="num_medications">Number of Medications</label>
-                <input type="number" id="num_medications" name="num_medications" min="0" max="50" required placeholder="e.g., 10">
-                <span class="hint">Number of distinct medications prescribed</span>
-            </div>
-            
-            <div class="form-group">
-                <label for="number_outpatient">Outpatient Visits</label>
-                <input type="number" id="number_outpatient" name="number_outpatient" min="0" max="50" required placeholder="e.g., 0">
-                <span class="hint">Number of outpatient visits in past year</span>
-            </div>
-            
-            <div class="form-group">
-                <label for="number_emergency">Emergency Visits</label>
-                <input type="number" id="number_emergency" name="number_emergency" min="0" max="50" required placeholder="e.g., 1">
-                <span class="hint">Number of emergency visits in past year</span>
-            </div>
-            
-            <div class="form-group">
-                <label for="number_inpatient">Inpatient Visits</label>
-                <input type="number" id="number_inpatient" name="number_inpatient" min="0" max="50" required placeholder="e.g., 0">
-                <span class="hint">Number of inpatient visits in past year</span>
-            </div>
-            
-            <button type="submit">Predict Readmission Risk</button>
+
+            <button type="submit" id="submitBtn" class="btn-primary" onclick="this.classList.add('loading')">
+                <span class="btn-text">🔍 Predict Readmission Risk</span>
+                <span class="spinner"></span>
+            </button>
         </form>
-        
-        <div class="api-link">
-            <a href="#" onclick="alert('POST to /api/predict with JSON data'); return false;">API Documentation</a>
+
+        <!-- Navigation -->
+        <div class="nav-links mt-4">
+            <a href="/history" class="btn btn-secondary">📋 Prediction History</a>
+        </div>
+
+        <!-- API Documentation Section -->
+        <div class="api-docs">
+            <button class="api-docs-toggle" onclick="toggleApiDocs()" id="apiDocsBtn">
+                📡 API Documentation
+                <span id="apiToggleIcon">▼</span>
+            </button>
+            <div class="api-docs-content" id="apiDocsContent">
+                <div class="api-endpoint">
+                    <div>
+                        <span class="api-method get">GET</span>
+                        <span class="api-url">/</span>
+                    </div>
+                    <p class="api-description">Returns the web interface home page with the prediction form.</p>
+                </div>
+
+                <div class="api-endpoint">
+                    <div>
+                        <span class="api-method post">POST</span>
+                        <span class="api-url">/predict</span>
+                    </div>
+                    <p class="api-description">Form-based prediction. Submit patient data via HTML form and receive results as a rendered page.</p>
+                </div>
+
+                <div class="api-endpoint">
+                    <div>
+                        <span class="api-method post">POST</span>
+                        <span class="api-url">/api/predict</span>
+                    </div>
+                    <p class="api-description">RESTful JSON API for programmatic access. Send patient data as JSON and receive prediction with confidence score.</p>
+                    <pre class="api-code">{
+  "age": 65,
+  "time_in_hospital": 4,
+  "num_lab_procedures": 40,
+  "num_medications": 10,
+  "number_outpatient": 0,
+  "number_emergency": 1,
+  "number_inpatient": 0
+}
+
+// Response:
+{
+  "prediction": 1,
+  "prediction_text": "Readmitted",
+  "confidence": 0.7234
+}</pre>
+                </div>
+
+                <div class="api-endpoint">
+                    <div>
+                        <span class="api-method get">GET</span>
+                        <span class="api-url">/history</span>
+                    </div>
+                    <p class="api-description">View the last 10 predictions made during this session.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Healthcare Readmission Prediction System &bull; Powered by Random Forest ML
         </div>
     </div>
+
+    <script>
+        function toggleApiDocs() {
+            const content = document.getElementById('apiDocsContent');
+            const icon = document.getElementById('apiToggleIcon');
+            content.classList.toggle('open');
+            icon.textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+    </script>
 </body>
 </html>

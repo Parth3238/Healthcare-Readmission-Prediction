@@ -3,51 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prediction Result</title>
+    <meta name="description" content="Patient readmission risk prediction result with confidence score and contributing factors.">
+    <title>Prediction Result | Healthcare Readmission</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <!-- Chart.js for probability visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Prediction Result</h1>
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Prediction Result</h1>
+        </div>
 
+        <!-- Result Badge -->
         <div class="result-box {{ 'readmitted' if result.prediction == 1 else 'not-readmitted' }}">
+            <div class="result-badge">
+                {% if result.prediction == 1 %}⚠️ HIGH RISK{% else %}✅ LOW RISK{% endif %}
+            </div>
             <div class="result-title">{{ result.prediction_text }}</div>
             <div class="result-text">
                 {% if result.prediction == 1 %}
-                    This patient is at risk of readmission
+                    This patient is at elevated risk of hospital readmission
                 {% else %}
-                    This patient is not at risk of readmission
+                    This patient is at low risk of hospital readmission
                 {% endif %}
             </div>
             {% if result.confidence %}
-            <div class="confidence">Confidence: {{ result.confidence }}%</div>
+            <div class="confidence">📊 Confidence: {{ result.confidence }}%</div>
             {% endif %}
         </div>
+
+        <!-- SHAP Explanation (Top Contributing Factors) -->
+        {% if shap_factors %}
+        <div class="shap-section">
+            <h3>🧠 Top Contributing Factors</h3>
+            {% for factor in shap_factors %}
+            <div class="shap-factor">
+                <span class="shap-rank">{{ loop.index }}</span>
+                <span class="shap-name">{{ factor.name }}</span>
+                <div class="shap-bar-container">
+                    <div class="shap-bar {{ 'positive' if factor.value > 0 else 'negative' }}"
+                         style="width: {{ factor.importance }}%"></div>
+                </div>
+                <span class="shap-value {{ 'positive' if factor.value > 0 else 'negative' }}">
+                    {{ '+' if factor.value > 0 else '' }}{{ "%.3f"|format(factor.value) }}
+                </span>
+            </div>
+            {% endfor %}
+            <p style="font-size: 12px; color: #6b7280; margin-top: 12px;">
+                🔴 Positive values increase readmission risk &nbsp;|&nbsp; 🟢 Negative values decrease risk
+            </p>
+        </div>
+        {% endif %}
 
         <!-- Probability Chart -->
         {% if result.confidence %}
         <div class="chart-container">
-            <h3>Readmission Probability</h3>
+            <h3>📈 Readmission Probability</h3>
             <canvas id="probabilityChart"></canvas>
         </div>
         <script>
-            // Parse confidence value
+            // Dynamic color based on prediction class
+            const prediction = {{ result.prediction }};
             const confidence = {{ result.confidence }};
-            const notReadmittedProb = 100 - confidence;
+            const readmittedProb = prediction === 1 ? confidence : (100 - confidence);
+            const notReadmittedProb = 100 - readmittedProb;
 
-            // Create horizontal bar chart showing probability
+            // Colors dynamically tied to prediction
+            const barColors = [
+                'rgba(16, 185, 129, 0.85)',   // Green for Not Readmitted
+                'rgba(239, 68, 68, 0.85)'     // Red for Readmitted
+            ];
+            const borderColors = [
+                'rgba(5, 150, 105, 1)',
+                'rgba(220, 38, 38, 1)'
+            ];
+
             new Chart(document.getElementById('probabilityChart'), {
                 type: 'bar',
                 data: {
                     labels: ['Not Readmitted', 'Readmitted'],
                     datasets: [{
                         label: 'Probability %',
-                        data: [notReadmittedProb, confidence],
-                        backgroundColor: ['#2ecc71', '#e74c3c'],
-                        borderColor: ['#27ae60', '#c0392b'],
-                        borderWidth: 1
+                        data: [notReadmittedProb.toFixed(1), readmittedProb.toFixed(1)],
+                        backgroundColor: barColors,
+                        borderColor: borderColors,
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false
                     }]
                 },
                 options: {
@@ -57,53 +101,80 @@
                         legend: { display: false },
                         title: {
                             display: true,
-                            text: 'Patient Readmission Risk Assessment'
+                            text: 'Patient Readmission Risk Assessment',
+                            font: { size: 14, weight: '600', family: 'Inter' },
+                            color: '#374151',
+                            padding: { bottom: 16 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ctx.raw + '%';
+                                }
+                            }
                         }
                     },
                     scales: {
                         x: {
                             max: 100,
-                            title: { display: true, text: 'Probability (%)' }
+                            title: {
+                                display: true,
+                                text: 'Probability (%)',
+                                font: { size: 12, family: 'Inter' }
+                            },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        y: {
+                            grid: { display: false }
                         }
                     }
                 }
             });
         </script>
         {% endif %}
-        
+
+        <!-- Patient Information -->
         <div class="patient-data">
-            <h3>Patient Information</h3>
+            <h3>📋 Patient Information</h3>
             <div class="data-row">
-                <span class="data-label">Age:</span>
+                <span class="data-label">Age</span>
                 <span class="data-value">{{ form_data.age[0] }} years</span>
             </div>
             <div class="data-row">
-                <span class="data-label">Time in Hospital:</span>
+                <span class="data-label">Time in Hospital</span>
                 <span class="data-value">{{ form_data.time_in_hospital[0] }} days</span>
             </div>
             <div class="data-row">
-                <span class="data-label">Lab Procedures:</span>
+                <span class="data-label">Lab Procedures</span>
                 <span class="data-value">{{ form_data.num_lab_procedures[0] }}</span>
             </div>
             <div class="data-row">
-                <span class="data-label">Medications:</span>
+                <span class="data-label">Medications</span>
                 <span class="data-value">{{ form_data.num_medications[0] }}</span>
             </div>
             <div class="data-row">
-                <span class="data-label">Outpatient Visits:</span>
+                <span class="data-label">Outpatient Visits</span>
                 <span class="data-value">{{ form_data.number_outpatient[0] }}</span>
             </div>
             <div class="data-row">
-                <span class="data-label">Emergency Visits:</span>
+                <span class="data-label">Emergency Visits</span>
                 <span class="data-value">{{ form_data.number_emergency[0] }}</span>
             </div>
             <div class="data-row">
-                <span class="data-label">Inpatient Visits:</span>
+                <span class="data-label">Inpatient Visits</span>
                 <span class="data-value">{{ form_data.number_inpatient[0] }}</span>
             </div>
         </div>
-        
-        <a href="/" class="btn">Make Another Prediction</a>
+
+        <!-- Navigation -->
+        <div class="nav-links">
+            <a href="/" class="btn btn-secondary">🔄 New Prediction</a>
+            <a href="/history" class="btn btn-secondary">📋 View History</a>
+        </div>
+
+        <div class="footer">
+            Healthcare Readmission Prediction System &bull; Powered by Random Forest ML
+        </div>
     </div>
 </body>
 </html>
