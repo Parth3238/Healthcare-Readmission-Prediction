@@ -249,11 +249,15 @@ This project uses a **10,000-sample dataset** with realistic clinical distributi
 
 | Metric | Score |
 |--------|-------|
-| **Accuracy** | ~72% |
-| **Precision (weighted)** | ~68% |
-| **Recall (weighted)** | ~72% |
-| **F1-Score (weighted)** | ~66% |
-| **ROC-AUC** | ~0.62 |
+| **Accuracy** | ~62-72%* |
+| **Precision (weighted)** | ~60-68% |
+| **Recall (weighted)** | ~62-72% |
+| **F1-Score (weighted)** | ~55-66% |
+| **ROC-AUC** | ~0.60-0.65 |
+
+**Note**: Results vary between 62-72% depending on the random train/test split. The model comparison results
+show ~63% accuracy while the tuned model achieves ~72% on favorable splits. This variance is normal for
+healthcare prediction tasks with limited feature sets.
 
 ### Classification Report
 
@@ -287,6 +291,7 @@ This project uses a **10,000-sample dataset** with realistic clinical distributi
 | `/predict` | POST | Form-based prediction (returns HTML) |
 | `/api/predict` | POST | JSON API for programmatic access |
 | `/history` | GET | View last 10 predictions |
+| `/docs` | GET | Full API documentation page |
 
 ### API Request/Response Format
 

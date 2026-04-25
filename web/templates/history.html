@@ -20,6 +20,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Time</th>
                         <th>Age</th>
                         <th>Days</th>
                         <th>Labs</th>
@@ -32,6 +33,7 @@
                     {% for entry in history %}
                     <tr>
                         <td>{{ loop.index }}</td>
+                        <td style="font-size: 11px; white-space: nowrap;">{{ entry.timestamp or 'N/A' }}</td>
                         <td>{{ entry.age }}</td>
                         <td>{{ entry.time_in_hospital }}</td>
                         <td>{{ entry.num_lab_procedures }}</td>

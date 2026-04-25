@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import os
+from datetime import datetime
 
 # Get absolute path to web directory
 WEB_DIR = Path(__file__).parent.resolve()
@@ -178,7 +179,8 @@ def add_to_history(data, result):
         'number_inpatient': data['number_inpatient'][0],
         'prediction': result['prediction'],
         'prediction_text': result['prediction_text'],
-        'confidence': result.get('confidence', 'N/A')
+        'confidence': result.get('confidence', 'N/A'),
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
 
     history = session['prediction_history']
@@ -321,6 +323,12 @@ def history():
     """Display the prediction history from the current session."""
     prediction_history = session.get('prediction_history', [])
     return render_template("history.html", history=prediction_history)
+
+
+@app.route("/docs")
+def api_docs():
+    """Display the standalone API documentation page."""
+    return render_template("docs.html")
 
 
 if __name__ == "__main__":

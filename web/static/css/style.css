@@ -902,3 +902,35 @@ button[type="submit"].loading .btn-text {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--gray-400);
 }
+
+/* --- Confidence Progress Bar --- */
+.confidence-bar-container {
+    width: 80%;
+    max-width: 300px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-full);
+    margin: 12px auto 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.confidence-bar {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fillBar 1s ease-out;
+}
+
+.confidence-bar.high-risk {
+    background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.9));
+}
+
+.confidence-bar.low-risk {
+    background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.9));
+}
+
+@keyframes fillBar {
+    from { width: 0; }
+}

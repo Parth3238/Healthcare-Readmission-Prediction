@@ -2,7 +2,7 @@
 Model Training Module for Healthcare Readmission Prediction.
 
 Trains a Random Forest classifier with hyperparameter tuning and saves
-the best model for deployment.
+the best model for deployment. Includes MLflow experiment tracking.
 """
 
 import joblib
@@ -15,6 +15,15 @@ from sklearn.metrics import (
 )
 
 from src.data_preprocessing import load_data, split_data
+
+# MLflow import (optional - graceful fallback if not installed)
+try:
+    import mlflow
+    import mlflow.sklearn
+    MLFLOW_AVAILABLE = True
+except ImportError:
+    MLFLOW_AVAILABLE = False
+    print("MLflow not installed. Run: pip install mlflow")
 
 
 def train_model(tune_hyperparams=True):
@@ -89,6 +98,44 @@ def train_model(tune_hyperparams=True):
     # Print classification report
     print("\nClassification Report:")
     print(classification_report(y_test, y_pred, target_names=['Not Readmitted', 'Readmitted']))
+
+    # MLflow Logging
+    if MLFLOW_AVAILABLE:
+        try:
+            # Set up MLflow
+            mlflow.set_experiment("Healthcare-Readmission-Prediction")
+            tracking_dir = BASE_DIR / "mlruns"
+            mlflow.set_tracking_uri(f"file:///{tracking_dir}")
+
+            with mlflow.start_run(run_name="RandomForest_Training"):
+                # Log parameters
+                if tune_hyperparams and hasattr(model, 'get_params'):
+                    params = model.get_params()
+                    for param_name, param_value in params.items():
+                        mlflow.log_param(param_name, param_value)
+                else:
+                    mlflow.log_param("n_estimators", 200)
+                    mlflow.log_param("max_depth", 15)
+                    mlflow.log_param("class_weight", "balanced")
+
+                mlflow.log_param("tune_hyperparams", tune_hyperparams)
+                mlflow.log_param("train_samples", len(X_train))
+                mlflow.log_param("test_samples", len(X_test))
+
+                # Log metrics
+                mlflow.log_metric("accuracy", results['accuracy'])
+                mlflow.log_metric("precision", results['precision'])
+                mlflow.log_metric("recall", results['recall'])
+                mlflow.log_metric("f1_score", results['f1_score'])
+                mlflow.log_metric("roc_auc", results['roc_auc'])
+
+                # Log model artifact
+                mlflow.sklearn.log_model(model, "model")
+
+                print(f"\n✓ MLflow run logged successfully")
+                print(f"  View at: mlflow ui --backend-store-uri file:///{tracking_dir}")
+        except Exception as e:
+            print(f"\n⚠ MLflow logging failed: {e}")
 
     return model, results
 

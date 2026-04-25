@@ -31,6 +31,9 @@
             </div>
             {% if result.confidence %}
             <div class="confidence">📊 Confidence: {{ result.confidence }}%</div>
+            <div class="confidence-bar-container">
+                <div class="confidence-bar {{ 'high-risk' if result.prediction == 1 else 'low-risk' }}" style="width: {{ result.confidence }}%"></div>
+            </div>
             {% endif %}
         </div>
 
